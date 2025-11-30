@@ -1,8 +1,8 @@
 from datetime import datetime
 from typing import Optional
-from sqlmodel import SQLModel, Field, Relationship
+from sqlmodel import SQLModel, Field
 from enum import Enum
-from sqlalchemy import Column, String, Boolean, DateTime, Float, Integer, JSON
+from sqlalchemy import Column, DateTime
 from sqlalchemy.sql import func
 
 

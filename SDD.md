@@ -189,16 +189,19 @@
 **1. 用户认证模块 (`auth_router`)**
 
 - **职责**：处理用户登录、令牌验证及权限管理。
-- **依赖**：`User` 模型，`get_current_active_user` 依赖项。
+- **依赖**：`User` 模型，`get_current_user` 依赖项。
 - **接口设计**：
-  - `POST /api/auth/token`
-    - **描述**：用户登录，获取访问令牌（OAuth2密码流）。
+  - `POST /api/auth`
+    - **描述**：用户登录，获取访问令牌。
     - **请求体**：`Form Data: username, password`
     - **成功响应 (200)**：`{ "access_token": "jwt_token", "token_type": "bearer" }`
   - `GET /api/auth/me`
     - **描述**：获取当前登录用户的详细信息。
     - **依赖**：需要有效的Bearer Token。
     - **成功响应 (200)**：`{ "username": "admin", ... }`
+  - `POST /api/auth/register`
+    - **描述**: 用户注册, 并且获取访问令牌
+    - **请求体**: ``
 
 **2. 测站管理模块 (`stations_router`)**
 

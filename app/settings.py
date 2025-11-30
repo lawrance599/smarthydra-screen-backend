@@ -2,7 +2,12 @@ from pydantic import BaseModel, Field
 from os import environ
 import toml
 from pathlib import Path
-
+_settings: "Settings | None" = None
+def load_settings() -> "Settings":
+    global _settings
+    if _settings is None:
+        _settings = Settings.new()
+    return _settings
 
 class DatabaseSettings(BaseModel):
     """数据库配置"""
@@ -69,7 +74,6 @@ class Settings(BaseModel):
     @staticmethod
     def new() -> "Settings":
         """创建配置实例"""
-        # 首先尝试从环境变量读取
         db_url = environ.get("DATABASE_URL")
         db_pool_size = environ.get("DB_POOL_SIZE")
         db_max_overflow = environ.get("DB_MAX_OVERFLOW")
@@ -82,7 +86,6 @@ class Settings(BaseModel):
 
         log_level = environ.get("LOG_LEVEL")
 
-        # 构建数据库配置
         database_config = {}
         if db_url is not None:
             database_config["url"] = db_url
@@ -95,7 +98,6 @@ class Settings(BaseModel):
         if db_echo is not None:
             database_config["echo"] = db_echo.lower() == "true"
 
-        # 构建安全配置
         security_config = {}
         if secret_key is not None:
             security_config["secret_key"] = secret_key
@@ -104,18 +106,15 @@ class Settings(BaseModel):
         if token_expire is not None:
             security_config["access_token_expire_minutes"] = int(token_expire)
 
-        # 构建日志配置
         logging_config = {}
         if log_level is not None:
             logging_config["level"] = log_level
 
-        # 然后尝试从文件中读取
         config_path = environ.get("CONFIG_PATH", None)
         default_config = Path("config.toml") if config_path is None else Path(config_path)
 
         if default_config.exists():
             file_config = toml.load(default_config)
-            # 合并配置，环境变量优先
             if "database" not in file_config:
                 file_config["database"] = {}
             if "security" not in file_config:
@@ -134,7 +133,6 @@ class Settings(BaseModel):
 
             return Settings(**file_config)
         else:
-            # 如果没有配置文件，使用环境变量或默认值
             return Settings(
                 database=DatabaseSettings(**database_config),
                 security=SecuritySettings(**security_config),
