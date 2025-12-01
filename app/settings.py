@@ -2,12 +2,16 @@ from pydantic import BaseModel, Field
 from os import environ
 import toml
 from pathlib import Path
+
 _settings: "Settings | None" = None
+
+
 def load_settings() -> "Settings":
     global _settings
     if _settings is None:
         _settings = Settings.new()
     return _settings
+
 
 class DatabaseSettings(BaseModel):
     """数据库配置"""

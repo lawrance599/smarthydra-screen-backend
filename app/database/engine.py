@@ -1,48 +1,47 @@
 from sqlmodel import SQLModel
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
+from sqlalchemy.ext.asyncio import (
+    create_async_engine,
+    AsyncSession,
+    async_sessionmaker,
+    AsyncEngine,
+)
 from sqlalchemy.exc import SQLAlchemyError
 from app.settings import load_settings
 from typing import AsyncGenerator
 
-# 获取配置
-settings = load_settings()
-
-# 创建异步数据库引擎
-async_engine = create_async_engine(
-    settings.database_url,
-    pool_size=20,  
-    max_overflow=30,  
-    pool_pre_ping=True,  
-    pool_recycle=3600,  
-    connect_args={
-        "command_timeout": 60,  
-        "server_settings": {"application_name": "smarthydra_screen_backend", "timezone": "UTC"},
-    },
-)
-
-
-# 创建异步会话工厂
-AsyncSessionLocal = async_sessionmaker(
-    bind=async_engine,
-    class_=AsyncSession,
-    expire_on_commit=False,
-    autocommit=False,
-    autoflush=False,
-)
-
+_async_engine: AsyncEngine | None
+_AsyncSessionLocal: async_sessionmaker[AsyncSession] | None
 
 
 async def get_session() -> AsyncGenerator[AsyncSession, None]:
-    async with AsyncSessionLocal() as session:
+    global _AsyncSessionLocal
+    if _AsyncSessionLocal is None:
+        raise RuntimeError("init_db() must be called before get_session()")
+    async with _AsyncSessionLocal() as session:
         try:
             yield session
-        except SQLAlchemyError :
+        except SQLAlchemyError:
             await session.rollback()
             raise
         finally:
             await session.close()
 
-async def init_db() -> None:
-    async with async_engine.begin() as conn:
-        await conn.run_sync(SQLModel.metadata.create_all)
 
+async def init_db() -> None:
+    settings = load_settings()
+    
+    global _async_engine, _AsyncSessionLocal
+    _async_engine = create_async_engine(
+        settings.database_url,
+        echo=settings.database.echo,
+        pool_pre_ping=True,
+        pool_recycle=settings.database.pool_recycle,
+        pool_size=settings.database.pool_size,
+        max_overflow=settings.database.max_overflow,
+    )
+    
+    _AsyncSessionLocal = async_sessionmaker(
+        _async_engine, expire_on_commit=False, class_=AsyncSession
+    )
+    async with _async_engine.begin() as conn:
+        await conn.run_sync(SQLModel.metadata.create_all)

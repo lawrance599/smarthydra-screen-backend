@@ -22,20 +22,7 @@ class UserRole(str, Enum):
     USER = "user"
 
 
-class BaseTimestampModel(SQLModel):
-    """基础时间戳模型"""
-
-    created_at: datetime = Field(
-        default_factory=func.now,
-        sa_column=Column(DateTime(timezone=True), server_default=func.now()),
-    )
-    updated_at: datetime = Field(
-        default_factory=func.now,
-        sa_column=Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now()),
-    )
-
-
-class User(BaseTimestampModel, table=True):
+class User(SQLModel, table=True):
     """用户模型"""
 
     id: Optional[int] = Field(default=None, primary_key=True)
@@ -43,6 +30,14 @@ class User(BaseTimestampModel, table=True):
     password: str
     role: UserRole = Field(default=UserRole.USER)
     is_active: bool = Field(default=True)
+    created_at: Optional[datetime] = Field(
+        default=None,
+        sa_column=Column(DateTime(timezone=True), server_default=func.now()),
+    )
+    updated_at: Optional[datetime] = Field(
+        default=None,
+        sa_column=Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now()),
+    )
 
 
 class City(SQLModel, table=True):
@@ -53,7 +48,7 @@ class City(SQLModel, table=True):
     code: str = Field(index=True)
 
 
-class Station(BaseTimestampModel, table=True):
+class Station(SQLModel, table=True):
     """测站模型"""
 
     id: Optional[int] = Field(default=None, primary_key=True)
@@ -65,6 +60,14 @@ class Station(BaseTimestampModel, table=True):
     water_level_threshold: Optional[float] = Field(default=None)
     rainfall_threshold: Optional[float] = Field(default=None)
     is_active: bool = Field(default=True)
+    created_at: Optional[datetime] = Field(
+        default=None,
+        sa_column=Column(DateTime(timezone=True), server_default=func.now()),
+    )
+    updated_at: Optional[datetime] = Field(
+        default=None,
+        sa_column=Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now()),
+    )
 
 
 class WaterLevelData(SQLModel, table=True):
@@ -77,9 +80,13 @@ class WaterLevelData(SQLModel, table=True):
         default_factory=func.now,
         sa_column=Column(DateTime(timezone=True), server_default=func.now()),
     )
-    created_at: datetime = Field(
-        default_factory=func.now,
+    created_at: Optional[datetime] = Field(
+        default=None,
         sa_column=Column(DateTime(timezone=True), server_default=func.now()),
+    )
+    updated_at: Optional[datetime] = Field(
+        default=None,
+        sa_column=Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now()),
     )
 
 
@@ -93,10 +100,15 @@ class RainfallData(SQLModel, table=True):
         default_factory=func.now,
         sa_column=Column(DateTime(timezone=True), server_default=func.now()),
     )
-    created_at: datetime = Field(
-        default_factory=func.now,
+    created_at: Optional[datetime] = Field(
+        default=None,
         sa_column=Column(DateTime(timezone=True), server_default=func.now()),
     )
+    updated_at: Optional[datetime] = Field(
+        default=None,
+        sa_column=Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now()),
+    )
+
 
 class Alert(SQLModel, table=True):
     """报警模型"""
@@ -106,11 +118,11 @@ class Alert(SQLModel, table=True):
     alert_type: AlertType
     alert_message: str
     status: AlertStatus
-    
+
     trigger_value: float
     threshold: float
     trigger_data_id: int
-    
+
     trigger_at: datetime = Field(
         default_factory=func.now,
         sa_column=Column(DateTime(timezone=True), server_default=func.now()),
@@ -119,7 +131,11 @@ class Alert(SQLModel, table=True):
         default=None,
         sa_column=Column(DateTime(timezone=True)),
     )
-    created_at: datetime = Field(
-        default_factory=func.now,
+    created_at: Optional[datetime] = Field(
+        default=None,
         sa_column=Column(DateTime(timezone=True), server_default=func.now()),
+    )
+    updated_at: Optional[datetime] = Field(
+        default=None,
+        sa_column=Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now()),
     )
