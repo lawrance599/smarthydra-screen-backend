@@ -7,15 +7,16 @@ from app.database.engine import get_session
 from app.settings import load_settings
 from typing import Annotated
 
+
 async def get_current_user(
-    Authorization: Annotated[str|None, Header()] = None,
+    Authorization: Annotated[str | None, Header()] = None,
     session: AsyncSession = Depends(get_session),
 ) -> User:
     if Authorization is None:
         raise HTTPException(status_code=401, detail="请提供有效的请求头")
 
     settings = load_settings()
-    
+
     token = Authorization[7:]
     decoded_token = jwt.decode(token, settings.secret_key, algorithms=[settings.algorithm])
     username = decoded_token["sub"]

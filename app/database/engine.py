@@ -29,7 +29,7 @@ async def get_session() -> AsyncGenerator[AsyncSession, None]:
 
 async def init_db() -> None:
     settings = load_settings()
-    
+
     global _async_engine, _AsyncSessionLocal
     _async_engine = create_async_engine(
         settings.database_url,
@@ -39,7 +39,7 @@ async def init_db() -> None:
         pool_size=settings.database.pool_size,
         max_overflow=settings.database.max_overflow,
     )
-    
+
     _AsyncSessionLocal = async_sessionmaker(
         _async_engine, expire_on_commit=False, class_=AsyncSession
     )

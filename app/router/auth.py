@@ -8,10 +8,7 @@ from app.database.schema import User
 from sqlalchemy.exc import NoResultFound
 from app.deps.jwt import make_jwt
 
-router = APIRouter(
-    prefix="/auth",
-    tags=["认证"]
-)
+router = APIRouter(prefix="/auth", tags=["认证"])
 
 
 class Login(BaseModel):
@@ -42,4 +39,3 @@ async def login(login: Annotated[Login, Form()], session: AsyncSession = Depends
     if password != login.password:
         return HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="密码错误")
     return TokenResponse(access_token=make_jwt(login.username, login.expire_minutes))
-
