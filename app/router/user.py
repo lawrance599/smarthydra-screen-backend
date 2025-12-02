@@ -13,9 +13,6 @@ from .auth import TokenResponse
 
 router = APIRouter(prefix="/user", tags=["用户"])
 
-
-
-
 class Register(BaseModel):
     username: str
     password: str
@@ -54,3 +51,15 @@ async def me(current_user: Annotated[User, Depends(get_current_user)]):
     获取当前用户信息
     """
     return current_user
+class Delete(BaseModel):
+    code: int
+    username: str
+@router.get("/delete")
+async def delete(current_user: Annotated[User, Depends(get_current_user)], session: AsyncSession = Depends(get_session)):
+    """
+    删除当前用户
+    """
+    await session.delete(current_user)
+    await session.commit()
+    return Delete(code=200, username=current_user.username)
+    
