@@ -55,13 +55,14 @@ async def read_station(
     if not city:
         raise HTTPException(404, "没有找到城市信息")
     return StationRead(
-        id=station.id, # type: ignore
+        id=station.id,  # type: ignore
         name=station.name,
         code=station.code,
         city=city.name,
         longitude=station.longitude,
         latitude=station.latitude,
     )
+
 
 class StationCreate(BaseModel):
     name: str
@@ -72,9 +73,11 @@ class StationCreate(BaseModel):
     rainfall_threshold: float
     water_level_threshold: float
 
+
 @router.post("/station", response_model=StationRead)
 async def create_station(
-    station: Annotated[StationCreate, Form()], session: Annotated[AsyncSession, Depends(get_session)]
+    station: Annotated[StationCreate, Form()],
+    session: Annotated[AsyncSession, Depends(get_session)],
 ):
     """
     创建站点信息
@@ -90,7 +93,7 @@ async def create_station(
     new_station = Station(
         name=station.name,
         code=station.code,
-        city_id=city.id, # type: ignore
+        city_id=city.id,  # type: ignore
         longitude=station.longitude,
         latitude=station.latitude,
         rainfall_threshold=station.rainfall_threshold,
@@ -108,4 +111,3 @@ async def create_station(
         longitude=station.longitude,
         latitude=station.latitude,
     )
-
