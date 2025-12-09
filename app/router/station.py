@@ -74,7 +74,7 @@ class StationCreate(BaseModel):
     water_level_threshold: float
 
 
-@router.post("/station", response_model=StationRead)
+@router.post("", response_model=StationRead)
 async def create_station(
     station: Annotated[StationCreate, Form()],
     session: Annotated[AsyncSession, Depends(get_session)],

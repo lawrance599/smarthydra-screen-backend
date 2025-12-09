@@ -17,7 +17,8 @@ class DatabaseSettings(BaseModel):
     """数据库配置"""
 
     url: str = Field(
-        default="postgresql+async://user:password@localhost/smarthydra", description="数据库连接URL"
+        default="postgresql+asyncpg://user:password@localhost/smarthydra",
+        description="数据库连接URL",
     )
     pool_size: int = Field(default=20, description="连接池大小")
     max_overflow: int = Field(default=30, description="最大溢出连接数")
