@@ -15,14 +15,14 @@ router = APIRouter(
 )
 
 
-@router.get("/stations")
+@router.get("/all")
 async def read_stations(session: Annotated[AsyncSession, Depends(get_session)]):
     """
     获取所有站点信息
     """
     try:
         statement = select(Station)
-        stations = (await session.execute(statement)).all()
+        stations = (await session.execute(statement)).scalars().all()
     except NoResultFound:
         raise HTTPException(404, "没有找到站点信息")
     except SQLAlchemyError:
@@ -39,7 +39,7 @@ class StationRead(BaseModel):
     latitude: float
 
 
-@router.get("/station/{station_id}", response_model=StationRead)
+@router.get("/{station_id}", response_model=StationRead)
 async def read_station(
     station_id: Annotated[int, Path()], session: Annotated[AsyncSession, Depends(get_session)]
 ):
@@ -99,7 +99,7 @@ async def create_station(
         rainfall_threshold=station.rainfall_threshold,
         water_level_threshold=station.water_level_threshold,
     )
-    session.add(station)
+    session.add(new_station)
     await session.commit()
     await session.refresh(new_station)
     assert new_station.id

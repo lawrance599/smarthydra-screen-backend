@@ -17,6 +17,7 @@ async def get_current_user(
 
     settings = load_settings()
 
+    # 去除BEARER前缀
     token = Authorization[7:]
     decoded_token = jwt.decode(token, settings.secret_key, algorithms=[settings.algorithm])
     username = decoded_token["sub"]

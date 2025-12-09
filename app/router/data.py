@@ -15,7 +15,7 @@ router = APIRouter(
 )
 
 
-@router.get("/{id}/water-level")
+@router.get("/{station_id}/water-level")
 async def read_water_level_data(
     session: Annotated[AsyncSession, Depends(get_session)],
     station_id: Annotated[int, Path()],
@@ -24,9 +24,14 @@ async def read_water_level_data(
     """
     获取指定站点的指定时间段内的水位数据
     """
-    query = select(WaterLevelData).limit(limit).where(WaterLevelData.station_id == station_id)
+    query = (
+        select(WaterLevelData)
+        .where(WaterLevelData.station_id == station_id)
+        .order_by(WaterLevelData.measure_at.desc())
+        .limit(limit)
+    )
     water_level_data = (await session.execute(query)).scalars().all()
-    return [water_level_data.model_dump() for water_level_data in water_level_data]
+    return [item.model_dump() for item in water_level_data]
 
 
 class DataInsert(BaseModel):
@@ -57,6 +62,7 @@ async def create_water_level_data(
     )
     session.add(water_level_data)
     await session.commit()
+    return water_level_data.model_dump()
 
 
 @router.delete("{station_id}/water-level/{id}")
@@ -93,9 +99,15 @@ async def read_rainfall_data(
     """
     获取指定站点的指定时间段内的雨量数据
     """
-    query = select(RainfallData).limit(limit).where(RainfallData.station_id == station_id)
+    query = (
+        select(RainfallData)
+        .where(RainfallData.station_id == station_id)
+        .order_by(RainfallData.measure_at.desc())
+        .limit(limit)
+    )
+
     rainfall_data = (await session.execute(query)).scalars().all()
-    return [rainfall_data.model_dump() for rainfall_data in rainfall_data]
+    return [item.model_dump() for item in rainfall_data]
 
 
 @router.post("/{station_id}/rainfall")
